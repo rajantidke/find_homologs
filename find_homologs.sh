@@ -13,9 +13,8 @@ query_file=$1
 subject_file=$2
 output_file=$3
 
-# Perform a tblastn search using the query protein sequence against the nucleotide subject
-tblastn \
--query "$query_file" \
--subject "$subject_file" \
--outfmt "6 qseqid sseqid pident length qlen" \
--out blast_results.txt > "$output_file"
+# This perform a tblastn search using the query protein sequence against the nucleotide subject
+tblastn -query "$query_file" -subject "$subject_file" -out blast_results.txt -outfmt "6 qseqid sseqid pident length qlen" 
+
+# This filter for hits with >30% identity and >90% match length
+awk '{if ($3 > 30 && $4 > 0.9 * $5) print $0}' blast_results.txt > "$output_file"
