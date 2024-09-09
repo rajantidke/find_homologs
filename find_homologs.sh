@@ -1,20 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# This is to check if the user has provided the correct number of arguments
+
+# Usage must be : ./find_homologs.sh <query_file> <subject_file> <output_file>
+# We'll check the correctness of the number arguments in the following snippet.
+
 if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <query file> <subject file> <output file>"
+    echo "Usage: ./find_homologs.sh <query_file> <subject_file> <output_file>"
     exit 1
 fi
 
-# This assign arguments to variables
-QUERY_FILE=$1
-SUBJECT_FILE=$2
-OUTPUT_FILE=$3
+query_file=$1
+subject_file=$2
+output_file=$3
 
-# This will run BLAST and filter for perfect matches
-blastn -query "$QUERY_FILE" -subject "$SUBJECT_FILE" -task blastn-short -outfmt "6 qseqid sseqid pident length qlen" | \
-awk -v OFS='\t' '{ if ($3 == 100 && $4 == $5) print $0 }' > "$OUTPUT_FILE"
-
-# This will count and print the number of perfect matches
-MATCH_COUNT=$(wc -l < "$OUTPUT_FILE")
-echo "Number of perfect matches: $MATCH_COUNT"
+# Perform a tblastn search using the query protein sequence against the nucleotide subject
+tblastn \
+-query "$query_file" \
+-subject "$subject_file" \
+-outfmt "6 qseqid sseqid pident length qlen" \
+-out blast_results.txt > "$output_file"
